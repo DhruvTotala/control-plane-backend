@@ -1,13 +1,14 @@
-# Stage 1: Build the application using Maven
-FROM maven:3.9-eclipse-temurin-21 AS build
+# Stage 1: Build the application using Gradle
+FROM eclipse-temurin:21-jdk-alpine AS build
 WORKDIR /app
 COPY . .
-RUN mvn clean package -DskipTests
+RUN chmod +x gradlew
+RUN ./gradlew bootJar -x test
 
 # Stage 2: Run the application
 FROM eclipse-temurin:21-jre-alpine
 WORKDIR /app
-COPY --from=build /app/target/*.jar app.jar
+COPY --from=build /app/build/libs/*.jar app.jar
 
 EXPOSE 8080
 ENTRYPOINT ["java", "-jar", "app.jar"]
